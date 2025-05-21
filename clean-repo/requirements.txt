@@ -1,0 +1,6 @@
+# spacy==3.5.3
+dateparser
+google-api-python-client
+slack-sdk
+python-dotenv
+pytest
