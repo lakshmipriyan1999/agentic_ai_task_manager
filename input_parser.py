@@ -43,12 +43,31 @@ def parse_deadline(text: str) -> Optional[str]:
 
     return None
 
+# —— Day 2: Action Extraction (fallback version) —— 
+def parse_action(text: str) -> str:
+    """
+    Return the first word of the command lowercased,
+    unless it’s 'no', in which case return ''.
+    """
+    words = text.strip().split()
+    if not words:
+        return ""
+    first = words[0].lower()
+    # If the first word is 'no', treat as no action
+    if first == "no":
+        return ""
+    return first
+
+
 
 def parse_input(text: str) -> Dict:
     """
     Day 1 pipeline: only deadline parsing.
     """
-    return {"deadline": parse_deadline(text)}
+    return {
+        'deadline': parse_deadline(text),
+        'action': parse_action(text),
+    }
 
 
 if __name__ == "__main__":

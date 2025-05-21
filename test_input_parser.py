@@ -19,3 +19,17 @@ def test_parse_input_dict():
     assert "deadline" in res
     assert res["deadline"] is not None
     assert "T" in res["deadline"]
+
+
+import pytest
+from input_parser import parse_action
+
+@pytest.mark.parametrize("txt,expected", [
+    ("Schedule meeting tomorrow", "schedule"),
+    ("Prepare slides by Friday", "prepare"),
+    ("Call Alice ASAP", "call"),
+    ("Email Carol the report", "email"),
+    ("No verbs here", ""),
+])
+def test_parse_action(txt, expected):
+    assert parse_action(txt) == expected
