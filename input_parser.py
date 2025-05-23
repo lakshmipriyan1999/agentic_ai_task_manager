@@ -1,82 +1,132 @@
-# input_parser.py
-
+import spacy
+import dateparser
+import re
 from typing import Optional, Dict
 from datetime import datetime, timedelta
-import dateparser
-from dateparser.search import search_dates
 
+# Load spaCy English model
+nlp = spacy.load("en_core_web_sm")
+
+# Team members
+TEAM = ['Alice', 'Bob', 'Carol']
+
+# -------------------- Week 2 Day 4: Fixed Employee ID Mapping --------------------
+EMP_IDS = {
+    "Alice": "EMP001",
+    "Bob": "EMP002",
+    "Carol": "EMP003"
+}
+
+# -------------------- Week 2 Day 4: Global Task ID tracker per team member --------------------
+task_id_counters = {}
+
+# -------------------- Week 2 Day 4: Generate Unique Task ID per Assignee --------------------
+def generate_task_id(assignee: Optional[str]) -> Optional[str]:
+    """
+    Generates a unique task ID for each assignee like TASK-BOB-001.
+    If assignee is None, returns None.
+    """
+    if not assignee:
+        return None
+    name = assignee.upper()
+    if name not in task_id_counters:
+        task_id_counters[name] = 1
+    else:
+        task_id_counters[name] += 1
+    return f"TASK-{name}-{task_id_counters[name]:03d}"
+
+# -------------------- Day 1: Deadline Parsing --------------------
 def parse_deadline(text: str) -> Optional[str]:
     """
-    1) If text mentions 'tomorrow' or 'today', handle explicitly.
-    2) Else try direct dateparser.parse (handles many natural expressions).
-    3) Else scan for explicit dates via search_dates.
+    Extracts a DATE from text using spaCy and dateparser.
+    If dateparser fails, handles specific patterns like 'next Monday' manually.
     """
+    doc = nlp(text)
+    for ent in doc.ents:
+        if ent.label_ == "DATE":
+            parsed_date = dateparser.parse(
+                ent.text,   
+                settings={
+                    'PREFER_DATES_FROM': 'future',
+                    'RELATIVE_BASE': datetime.now()
+                }
+            )
+            if parsed_date:
+                return parsed_date.isoformat()
 
-    lower = text.lower()
+            # Handle pattern like "next Monday"
+            match = re.search(r'next (\w+)', ent.text.lower())
+            if match:
+                weekday_str = match.group(1)
+                try:
+                    weekdays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
+                    today = datetime.now()
+                    today_weekday = today.weekday()
+                    target_weekday = weekdays.index(weekday_str.lower())
 
-    # 1) Explicit relative terms
-    if "tomorrow" in lower:
-        dt = datetime.now() + timedelta(days=1)
-        # Round to midnight for consistency:
-        dt = dt.replace(hour=0, minute=0, second=0, microsecond=0)
-        return dt.isoformat()
-    if "today" in lower:
-        dt = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-        return dt.isoformat()
-
-    # 2) Direct parse
-    dt = dateparser.parse(text, settings={"PREFER_DATES_FROM": "future"})
-    if dt:
-        return dt.isoformat()
-
-    # 3) search_dates for explicit fragments
-    results = search_dates(
-        text,
-        settings={
-            "PREFER_DATES_FROM": "future",
-            "RETURN_AS_TIMEZONE_AWARE": False
-        }
-    )
-    if results:
-        _, dt2 = results[0]
-        return dt2.isoformat()
-
+                    days_ahead = (target_weekday - today_weekday + 7) % 7
+                    days_ahead = days_ahead + 7 if days_ahead == 0 else days_ahead  # ensure it's next week
+                    next_day = today + timedelta(days=days_ahead)
+                    return next_day.isoformat()
+                except ValueError:
+                    pass
     return None
 
-# —— Day 2: Action Extraction (fallback version) —— 
+# -------------------- Day 2: Action Extraction --------------------
 def parse_action(text: str) -> str:
     """
-    Return the first word of the command lowercased,
-    unless it’s 'no', in which case return ''.
+    Extracts the main verb from the sentence.
+    If no verb is found, checks for known action keywords.
     """
-    words = text.strip().split()
-    if not words:
-        return ""
-    first = words[0].lower()
-    # If the first word is 'no', treat as no action
-    if first == "no":
-        return ""
-    return first
+    doc = nlp(text)
+    for token in doc:
+        if token.pos_ == "VERB" and token.lemma_.lower() not in ["be", "verb", "have"]:
+            return token.lemma_.lower()
 
+    # Fallback keywords
+    keywords = ["email", "call", "remind", "schedule", "send", "finish", "prepare"]
+    for word in text.lower().split():
+        if word in keywords:
+            return word
+    return ""
 
+# -------------------- Day 3: Assignee Extraction --------------------
+def parse_assignee(text: str, team: list = TEAM) -> Optional[str]:
+    """
+    Extracts a PERSON name from text that matches the team list.
+    Falls back to manual matching if NER fails.
+    """
+    doc = nlp(text)
+    for ent in doc.ents:
+        if ent.label_ == "PERSON" and ent.text in team:
+            return ent.text
 
+    # Fallback if spaCy misses it
+    for name in team:
+        if name in text:
+            return name
+    return None
+
+# -------------------- Combined Parser --------------------
 def parse_input(text: str) -> Dict:
     """
-    Day 1 pipeline: only deadline parsing.
+    Returns a dictionary with deadline, action, assignee, task ID and employee ID.
+    Only generates IDs if assignee is recognized.
     """
+    assignee = parse_assignee(text)
+    employee_id = EMP_IDS.get(assignee) if assignee else None
+    task_id = generate_task_id(assignee) if assignee else None
+
     return {
-        'deadline': parse_deadline(text),
+        'employee_id': employee_id,
+        'task_id': task_id,
+        'assignee': assignee,
         'action': parse_action(text),
+        'deadline': parse_deadline(text)
     }
 
-
+# -------------------- Sample Run --------------------
 if __name__ == "__main__":
-    examples = [
-        "Finish report by next Friday",
-        "Submit by 2025-06-01 10:00",
-        "Do this ASAP",         # None
-        "Remind me tomorrow",   # Now explicitly handled
-        "Complete today",       # Explicitly handled
-    ]
-    for s in examples:
-        print(f"{s!r} → {parse_input(s)}")
+    sample = "Email Bob the report by Friday"
+    result = parse_input(sample)
+    print("Parsed Result:", result)
