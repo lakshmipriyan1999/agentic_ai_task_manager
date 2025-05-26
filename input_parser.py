@@ -29,7 +29,7 @@ def generate_task_id(assignee: Optional[str]) -> Optional[str]:
     if not assignee:
         return None
     name = assignee.upper()
-    if name not in task_id_counters:
+    if name not in task_id_counters:    
         task_id_counters[name] = 1
     else:
         task_id_counters[name] += 1
