@@ -8,7 +8,7 @@ from scheduler import (
     prioritize_tasks
 )
 
-# -------------------- Test: create_schedule_entry --------------------
+# -------------------- Week 3 Day 2: Test create_schedule_entry --------------------
 def test_create_schedule_entry_valid():
     parsed = {
         "assignee": "Alice",
@@ -22,11 +22,10 @@ def test_create_schedule_entry_valid():
     assert schedule["title"] == "Call task for Alice"
     assert schedule["assigned_to"] == "Alice"
     assert schedule["deadline"] == "2025-06-01T17:00"
-    assert schedule["task_id"].startswith("TASK-ALICE-")  #  Check task ID format
-    assert schedule["priority"] == "Medium"  # ✅ Default priority
+    assert schedule["task_id"].startswith("TASK-ALICE-")
+    assert schedule["priority"] == "Medium"  # Default priority
 
-
-# --------------------  Week 3 Day 2: Test save_schedule() --------------------
+# -------------------- Week 3 Day 2: Test save_schedule --------------------
 def test_save_schedule_adds_task():
     task_store.clear()
 
@@ -43,8 +42,7 @@ def test_save_schedule_adds_task():
     assert task_store[0]["assigned_to"] == "Alice"
     assert task_store[0]["title"] == "Call task for Alice"
 
-
-# --------------------  Week 3 Day 4: Test view_tasks_by_assignee --------------------
+# -------------------- Week 3 Day 4: Test view_tasks_by_assignee --------------------
 def test_view_tasks_by_assignee():
     task_store.clear()
 
@@ -57,11 +55,10 @@ def test_view_tasks_by_assignee():
     schedule = create_schedule_entry(parsed)
     save_schedule(schedule)
 
-    # Should not raise an error and should print Bob's task
+    # Function doesn't return anything, so we just make sure it runs
     view_tasks_by_assignee("Bob")
 
-
-# --------------------  Week 3 Day 5: Test delete_task_by_id --------------------
+# -------------------- Week 3 Day 5: Test delete_task_by_id --------------------
 def test_delete_task_by_id():
     task_store.clear()
 
@@ -77,10 +74,9 @@ def test_delete_task_by_id():
     task_id = schedule["task_id"]
     delete_task_by_id(task_id)
 
-    assert len(task_store) == 0  #  Task should be deleted
+    assert len(task_store) == 0
 
-
-# --------------------  Week 3 Day 5: Test prioritize_tasks --------------------
+# -------------------- Week 3 Day 5: Test prioritize_tasks --------------------
 def test_prioritize_tasks():
     task_store.clear()
 
@@ -106,4 +102,4 @@ def test_prioritize_tasks():
     save_schedule(schedule_high)
     save_schedule(schedule_low)
 
-    prioritize_tasks()  # Should print tasks with High priority first
+    prioritize_tasks()  # Output is printed, so no assert here

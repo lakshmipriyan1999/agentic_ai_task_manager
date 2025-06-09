@@ -59,7 +59,7 @@ def test_parse_input_dict():
         "task_id_prefix": "TASK-BOB-"
     }),
     ("Call Alice tomorrow", {
-        "assignee": "Alice",
+        "assignee": "Alice",    
         "employee_id": "EMP001",
         "action": "call",
         "deadline_contains": "T",
