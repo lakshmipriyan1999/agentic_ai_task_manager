@@ -6,9 +6,9 @@ def test_full_schedule_flow():
     task_store.clear()  # Reset task list before test
 
     mock_inputs = [
-        ("Call Alice tomorrow at 3 PM", "High"),
-        ("Email Bob the file by Friday 2 PM", "Medium"),
-        ("Schedule meeting with Carol at 10 AM tomorrow", "Low")
+        ("Call Priyan tomorrow at 3 PM", "High"),
+        ("Email Henali the file by Friday 2 PM", "Medium"),
+        ("Schedule meeting with Anusri at 10 AM tomorrow", "Low")
     ]
 
     for text, priority in mock_inputs:
@@ -20,6 +20,6 @@ def test_full_schedule_flow():
     assert len(task_store) == 3  # Ensure 3 tasks are saved
 
     # Optional display check (no assert needed, just verify prints)
-    view_tasks_by_assignee("Alice")
-    view_tasks_by_assignee("Bob")
-    view_tasks_by_assignee("Carol")
+    view_tasks_by_assignee("Priyan")
+    view_tasks_by_assignee("Henali")
+    view_tasks_by_assignee("Anusri")

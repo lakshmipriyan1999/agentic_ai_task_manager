@@ -17,8 +17,8 @@ def test_parse_deadline_returns_date(txt):
 @pytest.mark.parametrize("txt, expected", [
     ("Schedule meeting tomorrow", "schedule"),
     ("Prepare slides by Friday", "prepare"),
-    ("Call Alice ASAP", "call"),
-    ("Email Carol the report", "email"),
+    ("Call Priyan ASAP", "call"),
+    ("Email Anusri the report", "email"),
     ("No verbs here", ""),
 ])
 def test_parse_action(txt, expected):
@@ -26,9 +26,9 @@ def test_parse_action(txt, expected):
 
 # ----------------- Test: Assignee Extraction -----------------
 @pytest.mark.parametrize("txt, assignee", [
-    ("Email Bob the report", "Bob"),
-    ("Call Alice tomorrow", "Alice"),
-    ("Send docs to Carol by Friday", "Carol"),
+    ("Email Henali the report", "Henali"),
+    ("Call Priyan tomorrow", "Priyan"),
+    ("Send docs to Anusri by Friday", "Anusri"),
     ("Schedule meeting", None),  # No name
     ("Remind Poluru Krishna to update", None),  # Not in TEAM
 ])
@@ -37,33 +37,33 @@ def test_parse_assignee(txt, assignee):
 
 # ----------------- Test: Combined parse_input -----------------
 def test_parse_input_dict():
-    res = parse_input("Email Bob the report by Friday")
+    res = parse_input("Email Henali the report by Friday")
 
     assert "task_id" in res
-    assert res["task_id"].startswith("TASK-BOB-")
+    assert res["task_id"].startswith("TASK-HENALI-")  # ✅ Fixed: uppercase
 
     assert "employee_id" in res
     assert res["employee_id"] == "EMP002"
 
-    assert res["assignee"] == "Bob"
+    assert res["assignee"] == "Henali"
     assert res["action"] == "email"
     assert res["deadline"] is not None
 
 # ----------------- Test: parse_input() variations for Week 2 Day 5 -----------------
 @pytest.mark.parametrize("txt,expected", [
-    ("Email Bob the report by Friday", {
-        "assignee": "Bob",
+    ("Email Henali the report by Friday", {
+        "assignee": "Henali",
         "employee_id": "EMP002",
         "action": "email",
         "deadline_contains": "T",
-        "task_id_prefix": "TASK-BOB-"
+        "task_id_prefix": "TASK-HENALI-"  # ✅ Fixed
     }),
-    ("Call Alice tomorrow", {
-        "assignee": "Alice",    
+    ("Call Priyan tomorrow", {
+        "assignee": "Priyan",
         "employee_id": "EMP001",
         "action": "call",
         "deadline_contains": "T",
-        "task_id_prefix": "TASK-ALICE-"
+        "task_id_prefix": "TASK-PRIYAN-"  # ✅ Fixed
     }),
     ("Schedule meeting next week", {
         "assignee": None,
@@ -72,12 +72,12 @@ def test_parse_input_dict():
         "deadline_contains": "T",
         "task_id_prefix": None
     }),
-    ("Remind Carol to submit", {
-        "assignee": "Carol",
+    ("Remind Anusri to submit", {
+        "assignee": "Anusri",
         "employee_id": "EMP003",
         "action": "remind",
         "deadline_contains": None,
-        "task_id_prefix": "TASK-CAROL-"
+        "task_id_prefix": "TASK-ANUSRI-"  # ✅ Fixed
     }),
 ])
 def test_parse_input_variations(txt, expected):
@@ -93,6 +93,6 @@ def test_parse_input_variations(txt, expected):
         assert res["deadline"] is None
 
     if expected["task_id_prefix"]:
-        assert res["task_id"].startswith(expected["task_id_prefix"])
+        assert res["task_id"].startswith(expected["task_id_prefix"])  # ✅ Fixed
     else:
         assert res["task_id"] is None

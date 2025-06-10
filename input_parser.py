@@ -8,13 +8,13 @@ from datetime import datetime, timedelta
 nlp = spacy.load("en_core_web_sm")
 
 # Team members
-TEAM = ['Alice', 'Bob', 'Carol']
+TEAM = ['Priyan', 'Henali', 'Anusri']
 
 # -------------------- Week 2 Day 4: Fixed Employee ID Mapping --------------------
 EMP_IDS = {
-    "Alice": "EMP001",
-    "Bob": "EMP002",
-    "Carol": "EMP003"
+    "Priyan": "EMP001",
+    "Henali": "EMP002",
+    "Anusri": "EMP003"
 }
 
 # -------------------- Week 2 Day 4: Global Task ID tracker per team member --------------------
@@ -71,9 +71,9 @@ def parse_deadline(text: str) -> Optional[str]:
                 except ValueError:
                     pass
     return None
-
+    
 # -------------------- Day 2: Action Extraction --------------------
-def parse_action(text: str) -> str:
+def parse_action(text: str) -> str: 
     """
     Extracts the main verb from the sentence.
     If no verb is found, checks for known action keywords.
@@ -127,6 +127,6 @@ def parse_input(text: str) -> Dict:
 
 # -------------------- Sample Run --------------------
 if __name__ == "__main__":
-    sample = "Email Bob the report by Friday"
+    sample = "Email Priyan the report by Friday"
     result = parse_input(sample)
     print("Parsed Result:", result)
