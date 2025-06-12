@@ -5,11 +5,16 @@ from datetime import datetime, timedelta, timezone
 
 # -------------------- Setup --------------------
 SERVICE_ACCOUNT_FILE = 'credentials.json'
-SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
+
+# ✅ Changed scope from readonly to full calendar access
+SCOPES = ['https://www.googleapis.com/auth/calendar']
+
+# ✅ Use your actual calendar email (not 'primary')
+calendar_id = 'priyanmunirajan@gmail.com'  # Replace with your exact Gmail if needed
+
 credentials = service_account.Credentials.from_service_account_file(
     SERVICE_ACCOUNT_FILE, scopes=SCOPES)
 service = build('calendar', 'v3', credentials=credentials)
-calendar_id = 'primary'
 
 # -------------------- Week 4 Day 1: Get Busy Times from Google Calendar --------------------
 def get_busy_times():
