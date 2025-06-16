@@ -1,0 +1,38 @@
+[
+  {
+    "title": "Schedule task for Anusri",
+    "assigned_to": "Anusri",
+    "employee_id": "EMP003",
+    "deadline": "2025-06-18T15:00:00",
+    "priority": "Low",
+    "task_id": "TASK-ANUSRI-001",
+    "full_task": "Anusri should schedule the feedback meeting by  tomorrow 3 PM"
+  },
+  {
+    "title": "Prepare task for Henali",
+    "assigned_to": "Henali",
+    "employee_id": "EMP002",
+    "deadline": "2025-06-23T00:26:18.584898",
+    "priority": "Medium",
+    "task_id": "TASK-HENALI-001",
+    "full_task": "Henali should prepare the client presentation by next Monday"
+  },
+  {
+    "title": "Submit task for Priyan",
+    "assigned_to": "Priyan",
+    "employee_id": "EMP001",
+    "deadline": "2025-06-17T00:26:24.614856",
+    "priority": "High",
+    "task_id": "TASK-PRIYAN-001",
+    "full_task": "Priyan should submit the weekly status report by today"
+  },
+  {
+    "title": "Prepare task for Priyan",
+    "assigned_to": "Priyan",
+    "employee_id": "EMP001",
+    "deadline": "2025-06-18T00:26:29.037798",
+    "priority": "High",
+    "task_id": "TASK-PRIYAN-002",
+    "full_task": "Prepare report with Priyan at 3 PM tomorrow"
+  }
+]

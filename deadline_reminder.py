@@ -1,43 +1,52 @@
-# -------------------- deadline_reminder.py --------------------
 from datetime import datetime, timedelta
-from notifier import send_email                # from Day 1
-from task_store import task_store              # this file
-from email_ids import EMAILS                   # from Day 2
+from notifier import send_email
+import json
 
-def send_deadline_reminders():
-    today = datetime.now().date()
-    tomorrow = today + timedelta(days=1)
+# ------------------ Email Directory ------------------
+EMAILS = {
+    "Priyan": "lakshmipriyan6666@gmail.com",
+    "Henali": "lakshmipriyan6666@gmail.com",
+    "Anusri": "lakshmipriyan6666@gmail.com"
+}
 
-    for task in task_store:
-        assignee = task.get("assignee")
-        deadline = task.get("deadline")
-        action = task.get("action")
-        task_id = task.get("task_id")
+# ------------------ Load Task Store ------------------
+try:
+    with open("tasks.json", "r") as f:
+        task_store = json.load(f)
+except FileNotFoundError:
+    print("[ERROR] tasks.json not found.")
+    task_store = []
 
-        if not assignee or not deadline:
-            continue  # skip if missing
+# ------------------ Deadline Reminder ------------------
+print("\n[INFO] Checking for upcoming task deadlines...")
 
-        try:
-            deadline_date = datetime.fromisoformat(deadline).date()
-        except:
-            print(f"[ERROR] Can't read deadline: {deadline}")
+today = datetime.now().date()
+tomorrow = today + timedelta(days=1)
+
+for task in task_store:
+    try:
+        deadline_date = datetime.fromisoformat(task["deadline"]).date()
+    except Exception as e:
+        print(f"[ERROR] Failed to parse deadline: {task.get('deadline')} — {e}")
+        continue
+
+    if deadline_date == today or deadline_date == tomorrow:
+        assignee = task.get("assigned_to")
+        to_email = EMAILS.get(assignee)
+
+        if not to_email:
+            print(f"[WARNING] No email found for {assignee}")
             continue
 
-        if deadline_date == today or deadline_date == tomorrow:
-            to_email = EMAILS.get(assignee)
-            if not to_email:
-                print(f"[WARNING] No email found for {assignee}")
-                continue
-
-            subject = f"[Reminder] Task '{action}' is due on {deadline_date}"
-            message = f"""
+        subject = f"[Reminder] Task '{task['title']}' is due on {deadline_date}"
+        message = f"""
 Hi {assignee},
 
 This is a reminder that your task is due soon.
 
-Task: {action}
-Deadline: {deadline_date}
-Task ID: {task_id}
+Task: {task.get('full_task', 'No description')}
+Deadline: {task['deadline']}
+Task ID: {task['task_id']}
 
 Please complete it before the deadline.
 
@@ -45,10 +54,5 @@ Thanks,
 Agentic AI Task Scheduler
 """
 
-            send_email(to_email, subject, message.strip())
-            print(f"[INFO] Reminder sent to {assignee}")
-
-
-
-if __name__ == "__main__":
-    send_deadline_reminders()
+        send_email(to_email, subject, message.strip())
+        print(f"[INFO] Reminder sent to {assignee}")
