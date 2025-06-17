@@ -16,7 +16,7 @@ credentials = service_account.Credentials.from_service_account_file(
     SERVICE_ACCOUNT_FILE, scopes=SCOPES)
 service = build('calendar', 'v3', credentials=credentials)
 
-# -------------------- Week 4 Day 1: Get Busy Times from Google Calendar --------------------
+# --------------------Get Busy Times from Google Calendar --------------------
 def get_busy_times():
     now = datetime.now(timezone.utc).isoformat()
     tomorrow = (datetime.now(timezone.utc) + timedelta(days=1)).isoformat()
@@ -36,7 +36,7 @@ def get_busy_times():
         print(b)
     return busy_slots
 
-# -------------------- Week 4 Day 2: Detect Conflict with Busy Slots --------------------
+# -------------------- Detect Conflict with Busy Slots --------------------
 def is_conflict(start: str, end: str, busy_times: list) -> bool:
     start_dt = parse(start)
     end_dt = parse(end)
@@ -48,7 +48,7 @@ def is_conflict(start: str, end: str, busy_times: list) -> bool:
             return True
     return False
 
-# -------------------- Week 4 Day 3: Suggest Next Available Free Slot --------------------
+# -------------------- Suggest Next Available Free Slot --------------------
 def find_next_available_slot(busy_times: list, task_duration_minutes: int, preferred_start: str) -> str:
     search_time = parse(preferred_start)
     sorted_busy = sorted(busy_times, key=lambda x: x["start"])
@@ -62,7 +62,7 @@ def find_next_available_slot(busy_times: list, task_duration_minutes: int, prefe
 
     return search_time.isoformat()
 
-# -------------------- Week 4 Day 5: Manual Testing (Optional) --------------------
+# -------------------- Manual Testing --------------------
 if __name__ == "__main__":
     busy_slots = get_busy_times()
     print("\n[TEST] Fetched busy slots:")

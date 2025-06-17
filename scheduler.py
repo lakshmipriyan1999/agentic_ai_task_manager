@@ -119,6 +119,56 @@ def prioritize_tasks() -> None:
     for task in sorted_tasks:
         print(task)
 
+def cancel_task(task_id: str) -> None:
+    global task_store
+    task_found = False
+    updated_tasks = []
+
+    for task in task_store:
+        if task["task_id"] == task_id:
+            print(f"[INFO] Cancelling task: {task['title']}")
+            task_found = True
+
+            # Send cancellation email
+            try:
+                to_email = "lakshmipriyan6666@gmail.com"  # or use EMAILS.get(task['assigned_to']) if dynamic
+                subject = f"[Task Cancelled] {task['title']}"
+                message = f"""
+Hi {task['assigned_to']},
+
+The following task has been cancelled:
+
+Task: {task['full_task']}
+Task ID: {task['task_id']}
+
+No further action is required.
+
+Thanks,  
+Agentic AI Task Scheduler
+"""
+                from notifier import send_email
+                send_email(to_email, subject, message.strip())
+                print(f"[INFO] Cancellation email sent to {task['assigned_to']}")
+            except Exception as e:
+                print(f"[ERROR] Failed to send cancellation email: {e}")
+
+            continue  # skip this task (cancel it)
+        updated_tasks.append(task)
+
+    if not task_found:
+        print(f"[WARNING] Task with ID {task_id} not found.")
+        return
+
+    task_store = updated_tasks
+
+    # Save updated task list to JSON
+    import json
+    with open("tasks.json", "w") as f:
+        json.dump(task_store, f, indent=2, default=str)
+
+    print(f"[SUCCESS] Task {task_id} cancelled successfully.")
+
+
 # -------------------- Run Script --------------------
 if __name__ == "__main__":
     mock_inputs = [
@@ -126,6 +176,8 @@ if __name__ == "__main__":
         ("Henali should prepare the client presentation by next Monday", "Medium"),
         ("Priyan should submit the weekly status report by today", "High")
     ]
+
+
 
     for text, priority in mock_inputs:
         parsed = parse_input(text)
@@ -150,3 +202,4 @@ if __name__ == "__main__":
     parsed["full_task"] = test_input
     schedule = create_schedule_entry(parsed)
     save_schedule(schedule)
+

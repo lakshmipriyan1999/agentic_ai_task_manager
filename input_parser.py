@@ -10,17 +10,17 @@ nlp = spacy.load("en_core_web_sm")
 # Team members
 TEAM = ['Priyan', 'Henali', 'Anusri']
 
-# -------------------- Week 2 Day 4: Fixed Employee ID Mapping --------------------
+# --------------------Fixed Employee ID Mapping --------------------
 EMP_IDS = {
     "Priyan": "EMP001",
     "Henali": "EMP002",
     "Anusri": "EMP003"
 }
 
-# -------------------- Week 2 Day 4: Global Task ID tracker per team member --------------------
+# -------------------- Global Task ID tracker per team member --------------------
 task_id_counters = {}
 
-# -------------------- Week 2 Day 4: Generate Unique Task ID per Assignee --------------------
+# --------------------Generate Unique Task ID per Assignee --------------------
 def generate_task_id(assignee: Optional[str]) -> Optional[str]:
     """
     Generates a unique task ID for each assignee like TASK-BOB-001.
@@ -35,7 +35,7 @@ def generate_task_id(assignee: Optional[str]) -> Optional[str]:
         task_id_counters[name] += 1
     return f"TASK-{name}-{task_id_counters[name]:03d}"
 
-# -------------------- Day 1: Deadline Parsing --------------------
+# --------------------Deadline Parsing --------------------
 def parse_deadline(text: str) -> Optional[str]:
     """
     Extracts a DATE from text using spaCy and dateparser.
@@ -72,7 +72,7 @@ def parse_deadline(text: str) -> Optional[str]:
                     pass
     return None
     
-# -------------------- Day 2: Action Extraction --------------------
+# -------------------- Action Extraction --------------------
 def parse_action(text: str) -> str: 
     """
     Extracts the main verb from the sentence.
@@ -90,7 +90,7 @@ def parse_action(text: str) -> str:
             return word
     return ""
 
-# -------------------- Day 3: Assignee Extraction --------------------
+# -------------------- Assignee Extraction --------------------
 def parse_assignee(text: str, team: list = TEAM) -> Optional[str]:
     """
     Extracts a PERSON name from text that matches the team list.
