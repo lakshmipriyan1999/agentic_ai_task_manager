@@ -10,20 +10,20 @@ nlp = spacy.load("en_core_web_sm")
 # Team members
 TEAM = ['Priyan', 'Henali', 'Anusri']
 
-# --------------------Fixed Employee ID Mapping --------------------
+# Fixed Employee ID Mapping 
 EMP_IDS = {
     "Priyan": "EMP001",
     "Henali": "EMP002",
     "Anusri": "EMP003"
 }
 
-# -------------------- Global Task ID tracker per team member --------------------
+# Global Task ID tracker per team member
 task_id_counters = {}
 
-# --------------------Generate Unique Task ID per Assignee --------------------
+# Generate Unique Task ID per Assignee 
 def generate_task_id(assignee: Optional[str]) -> Optional[str]:
     """
-    Generates a unique task ID for each assignee like TASK-BOB-001.
+    Generates a unique task ID for each assignee like TASK-Priyan-001.
     If assignee is None, returns None.
     """
     if not assignee:
@@ -35,7 +35,7 @@ def generate_task_id(assignee: Optional[str]) -> Optional[str]:
         task_id_counters[name] += 1
     return f"TASK-{name}-{task_id_counters[name]:03d}"
 
-# --------------------Deadline Parsing --------------------
+# Deadline Parsing
 def parse_deadline(text: str) -> Optional[str]:
     """
     Extracts a DATE from text using spaCy and dateparser.
@@ -72,7 +72,7 @@ def parse_deadline(text: str) -> Optional[str]:
                     pass
     return None
     
-# -------------------- Action Extraction --------------------
+# Action Extraction 
 def parse_action(text: str) -> str: 
     """
     Extracts the main verb from the sentence.
@@ -90,7 +90,7 @@ def parse_action(text: str) -> str:
             return word
     return ""
 
-# -------------------- Assignee Extraction --------------------
+# Assignee Extraction
 def parse_assignee(text: str, team: list = TEAM) -> Optional[str]:
     """
     Extracts a PERSON name from text that matches the team list.
@@ -107,7 +107,7 @@ def parse_assignee(text: str, team: list = TEAM) -> Optional[str]:
             return name
     return None
 
-# -------------------- Combined Parser --------------------
+# Combined Parser
 def parse_input(text: str) -> Dict:
     """
     Returns a dictionary with deadline, action, assignee, task ID and employee ID.
@@ -125,7 +125,7 @@ def parse_input(text: str) -> Dict:
         'deadline': parse_deadline(text)
     }
 
-# -------------------- Sample Run --------------------
+# Sample Run
 if __name__ == "__main__":
     sample = "Email Priyan the report by Friday"
     result = parse_input(sample)

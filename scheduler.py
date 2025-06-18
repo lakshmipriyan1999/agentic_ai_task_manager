@@ -1,3 +1,4 @@
+import json
 from typing import Dict, Optional
 from datetime import datetime, timedelta
 from dateutil.parser import parse
@@ -6,10 +7,10 @@ from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from notifier import send_email
 from input_parser import parse_input
-from task_store import task_store  # ✅ shared task list
+from task_store import task_store  #  shared task list
 
 
-# -------------------- Google Calendar Setup --------------------
+# Google Calendar Setup 
 SERVICE_ACCOUNT_FILE = 'credentials.json'
 SCOPES = ['https://www.googleapis.com/auth/calendar']
 credentials = service_account.Credentials.from_service_account_file(
@@ -17,7 +18,7 @@ credentials = service_account.Credentials.from_service_account_file(
 service = build('calendar', 'v3', credentials=credentials)
 calendar_id = 'priyanmunirajan@gmail.com'
 
-# -------------------- Calendar Event Creation --------------------
+# Calendar Event Creation
 def add_event_to_calendar(summary: str, start_time: str, end_time: str):
     event = {
         'summary': summary,
@@ -27,11 +28,11 @@ def add_event_to_calendar(summary: str, start_time: str, end_time: str):
     created_event = service.events().insert(calendarId=calendar_id, body=event).execute()
     print(f"[INFO] Calendar event created: {created_event['htmlLink']}")
 
-# -------------------- Global Stores --------------------
+# Global Stores 
 task_store = []
 task_id_counters = {}
 
-# -------------------- ID Generation --------------------
+# ID Generation 
 def generate_task_id(assignee: Optional[str]) -> Optional[str]:
     if not assignee:
         return None
@@ -39,7 +40,7 @@ def generate_task_id(assignee: Optional[str]) -> Optional[str]:
     task_id_counters[name] = task_id_counters.get(name, 0) + 1
     return f"TASK-{name}-{task_id_counters[name]:03d}"
 
-# -------------------- Create Schedule --------------------
+# Create Schedule 
 def create_schedule_entry(parsed: Dict[str, Optional[str]]) -> Optional[Dict[str, str]]:
     if not parsed.get("assignee") or not parsed.get("deadline") or not parsed.get("action"):
         return None
@@ -54,7 +55,7 @@ def create_schedule_entry(parsed: Dict[str, Optional[str]]) -> Optional[Dict[str
         "full_task": parsed.get("full_task", "")
     }
 
-# -------------------- Save with Conflict Detection --------------------
+# Save with Conflict Detection
 def save_schedule(schedule: Dict[str, str]) -> None:
     if not schedule or "assigned_to" not in schedule:
         print("[WARNING] Invalid schedule. Missing required fields.")
@@ -98,7 +99,7 @@ def save_schedule(schedule: Dict[str, str]) -> None:
         json.dump(task_store, f, indent=2, default=str)
 
 
-# -------------------- View Tasks --------------------
+# View Tasks 
 def view_tasks_by_assignee(name: str) -> None:
     print(f"\n[TASKS FOR {name.upper()}]")
     found = False
@@ -167,6 +168,73 @@ Agentic AI Task Scheduler
         json.dump(task_store, f, indent=2, default=str)
 
     print(f"[SUCCESS] Task {task_id} cancelled successfully.")
+
+
+def replan_tasks() -> None:
+    """
+    Replans tasks that are not yet scheduled by finding free calendar slots,
+    assigning them, and notifying the assignees.
+    """
+    from google_calendar import get_busy_times, find_next_available_slot, create_event
+
+    busy_times = get_busy_times()
+
+    for task in task_store:
+        print(f"[DEBUG] Checking task: {task.get('task_id', 'UNKNOWN')} with status: {task.get('status', '')}")
+
+        #  Skip tasks that are missing required fields
+        if not task.get("assignee") or not task.get("action") or not task.get("task_id"):
+            print(f"[WARNING] Skipping malformed task: {task}")
+            continue
+
+        status = task.get("status", "").strip().lower()
+
+        if status in ["pending", "unscheduled", "not scheduled", ""]:
+            assignee = task.get("assignee") or task.get("assigned_to")
+            print(f"[INFO] Replanning task: {task['task_id']} for {assignee}")
+
+            duration_minutes = 30
+            preferred_start = datetime.now().isoformat()
+
+            #  Suggest a slot
+            slot_start = find_next_available_slot(busy_times, duration_minutes, preferred_start)
+            slot = {
+                "start": slot_start,
+                "end": (parse(slot_start) + timedelta(minutes=duration_minutes)).isoformat()
+            }
+
+            #  Create event
+            event = create_event(assignee, task["action"], slot)
+            task["calendar_event"] = event
+            task["status"] = "rescheduled"
+
+            #  Send email
+            to_email = "lakshmipriyan6666@gmail.com"
+            subject = f"[Task Rescheduled] {task['action'].capitalize()}"
+            message = f"""
+Hi {assignee},
+
+Your task has been successfully rescheduled.
+
+Task: {task['action']}
+New Time:
+Start: {event['start']}
+End: {event['end']}
+
+Task ID: {task['task_id']}
+Status: rescheduled
+
+Thanks,
+Agentic AI Task Scheduler
+"""
+            send_email(to_email, subject, message.strip())
+            print(f"[INFO] Task {task['task_id']} rescheduled and email sent.")
+
+    #  Save updated task store
+    with open("tasks.json", "w") as f:
+        json.dump(task_store, f, indent=2, default=str)
+
+
 
 
 # -------------------- Run Script --------------------
