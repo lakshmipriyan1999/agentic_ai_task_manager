@@ -1,7 +1,7 @@
 import json
 from scheduler import cancel_task, task_store
 
-# -------------------- Load tasks.json into task_store --------------------
+# Load tasks.json into task_store 
 try:
     with open("tasks.json", "r") as f:
         loaded_tasks = json.load(f)
@@ -10,6 +10,6 @@ try:
 except FileNotFoundError:
     print("[ERROR] tasks.json not found. Run scheduler.py first.")
 
-# -------------------- Run cancellation --------------------
+# Run cancellation 
 print("\n[CANCEL TASK TEST]")
 cancel_task("TASK-PRIYAN-002")

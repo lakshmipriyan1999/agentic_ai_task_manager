@@ -4,7 +4,7 @@ from googleapiclient.discovery import build
 from dateutil.parser import parse
 from datetime import datetime, timedelta, timezone
 
-# -------------------- Setup --------------------
+# Setup 
 SERVICE_ACCOUNT_FILE = 'credentials.json'
 SCOPES = ['https://www.googleapis.com/auth/calendar']
 calendar_id = 'priyanmunirajan@gmail.com'
@@ -13,7 +13,7 @@ credentials = service_account.Credentials.from_service_account_file(
     SERVICE_ACCOUNT_FILE, scopes=SCOPES)
 service = build('calendar', 'v3', credentials=credentials)
 
-# -------------------- Get Busy Times --------------------
+# Get Busy Times
 def get_busy_times():
     now = datetime.now(timezone.utc).isoformat()
     tomorrow = (datetime.now(timezone.utc) + timedelta(days=1)).isoformat()
@@ -33,7 +33,7 @@ def get_busy_times():
         print(b)
     return busy_slots
 
-# -------------------- Check Conflicts --------------------
+# Check Conflicts 
 def is_conflict(start: str, end: str, busy_times: list) -> bool:
     start_dt = parse(start)
     end_dt = parse(end)
@@ -45,7 +45,7 @@ def is_conflict(start: str, end: str, busy_times: list) -> bool:
             return True
     return False
 
-# -------------------- Find Free Slot --------------------
+# Find Free Slot
 def find_next_available_slot(busy_times: list, task_duration_minutes: int, preferred_start: str) -> str:
     # Ensure preferred_start is timezone-aware
     search_time = parse(preferred_start)
@@ -69,7 +69,7 @@ def find_next_available_slot(busy_times: list, task_duration_minutes: int, prefe
     return search_time.isoformat()
 
 
-# -------------------- Create Calendar Event --------------------
+# Create Calendar Event 
 def create_event(assignee: str, action: str, slot: Dict) -> Dict:
     """
     Create a calendar event for the given assignee and slot.

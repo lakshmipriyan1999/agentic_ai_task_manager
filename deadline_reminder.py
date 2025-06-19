@@ -2,14 +2,14 @@ from datetime import datetime, timedelta
 from notifier import send_email
 import json
 
-# ------------------ Email Directory ------------------
+# Email Directory 
 EMAILS = {
     "Priyan": "lakshmipriyan6666@gmail.com",
     "Henali": "lakshmipriyan6666@gmail.com",
     "Anusri": "lakshmipriyan6666@gmail.com"
 }
 
-# ------------------ Load Task Store ------------------
+# Load Task Store 
 try:
     with open("tasks.json", "r") as f:
         task_store = json.load(f)
@@ -17,7 +17,7 @@ except FileNotFoundError:
     print("[ERROR] tasks.json not found.")
     task_store = []
 
-# ------------------ Deadline Reminder ------------------
+# Deadline Reminder 
 print("\n[INFO] Checking for upcoming task deadlines...")
 
 today = datetime.now().date()
